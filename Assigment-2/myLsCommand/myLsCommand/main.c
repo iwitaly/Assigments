@@ -11,6 +11,10 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <time.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 void myLsFunction(int argc, const char * argv[]) {
     const char *dirPath = NULL;
     int wasFlag = 0;
@@ -43,12 +47,19 @@ void myLsFunction(int argc, const char * argv[]) {
     struct dirent *dp = NULL;
     
     while ((dp = readdir(directory)) != NULL) {
-        char *name = dp->d_name;
-        int len = dp->d_namlen;
         struct stat st;
-        
+        //пераметры, линки, владелец, группа, размер, время модификации
+        char *name = dp->d_name;
         stat(name, &st);
-        printf("%lld\t%s\n", st.st_size, name);
+
+        long long size = st.st_size;
+        int hardLinks = st.st_nlink;
+        int userID = st.st_uid;
+        int groupID = st.st_gid;
+        char *dataOfLastTimeModification = ctime(&st.st_atimespec.tv_sec);
+        int fileModes = st.st_mode;
+        
+        printf("%lld \t %s \t %s \n", st.st_size,dataOfLastTimeModification, name);
     }
     
     closedir(directory);     
