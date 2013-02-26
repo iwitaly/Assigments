@@ -13,14 +13,16 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <sys/types.h>
-#include <unistd.h>
+#include <pwd.h>
+#include <uuid/uuid.h>
+#include <grp.h>
 
 void myLsFunction(int argc, const char * argv[]) {
     const char *dirPath = NULL;
     int wasFlag = 0;
     
     if (argc == 2) {
-        if (!strcmp(argv[1], "-l")) {
+        if (strcmp(argv[1], "-l") == 0) {
             dirPath = ".";
             wasFlag = 1;
         }
@@ -50,16 +52,44 @@ void myLsFunction(int argc, const char * argv[]) {
         struct stat st;
         //пераметры, линки, владелец, группа, размер, время модификации
         char *name = dp->d_name;
-        stat(name, &st);
-
-        long long size = st.st_size;
-        int hardLinks = st.st_nlink;
-        int userID = st.st_uid;
-        int groupID = st.st_gid;
-        char *dataOfLastTimeModification = ctime(&st.st_atimespec.tv_sec);
-        int fileModes = st.st_mode;
-        
-        printf("%lld \t %s \t %s \n", st.st_size,dataOfLastTimeModification, name);
+        if (!wasFlag) {
+            printf("%s\n", name);
+        }
+        else {
+            stat(name, &st);
+            
+            int fileModes = st.st_mode;
+            long long size = st.st_size;
+            int hardLinks = st.st_nlink;
+            char *user = getpwuid(st.st_uid)->pw_name;
+            char *group = getgrgid(st.st_gid)->gr_name;
+            char *dataOfLastTimeModification = ctime(&st.st_atimespec.tv_sec);
+            
+            char filesModes[3];
+            if (fileModes | S_IRWXU) {
+                filesModes[0] = 'r';
+                filesModes[1] = 'w';
+            }
+            else {
+                if (fileModes | S_IRUSR) {
+                    filesModes[0] = 'r';
+                }
+                else {
+                    if (fileModes | S_IWUSR) {
+                        filesModes[0] = 'w';
+                    }
+                }
+                    
+            }
+            
+            printf("%s\t", filesModes);
+            printf("%d\t", hardLinks);
+            printf("%s\t", user);
+            printf("%s\t", group);
+            printf("%lld\t", size);
+            printf("%s\t", dataOfLastTimeModification);
+            printf("%s\n", name);
+        }
     }
     
     closedir(directory);     
