@@ -6,6 +6,7 @@
 //  Copyright (c) 2013 Виталий Давыдов. All rights reserved.
 //
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <dirent.h>
 #include <unistd.h>
@@ -51,9 +52,16 @@ void myLsFunction(int argc, const char * argv[]) {
     while ((dp = readdir(directory)) != NULL) {
         struct stat st;
         //пераметры, линки, владелец, группа, размер, время модификации
-        char *name = dp->d_name;
+        //поправить имя файла с полным путем
+        char *name = (char *)malloc((strlen(dp->d_name) + strlen(dirPath)+1)*sizeof(char));
+        name[0] = '\0';
+        name = strcat(name, dirPath);
+        name = strcat(name, dp->d_name);
+        
+//        printf("%s\n", name);
+        
         if (!wasFlag) {
-            printf("%s\n", name);
+            printf("%s\n", dp->d_name);
         }
         else {
             stat(name, &st);
@@ -90,6 +98,7 @@ void myLsFunction(int argc, const char * argv[]) {
             printf("%s\t", dataOfLastTimeModification);
             printf("%s\n", name);
         }
+        free(name);
     }
     
     closedir(directory);     
@@ -101,4 +110,3 @@ int main(int argc, const char * argv[])
     
     return 0;
 }
-
