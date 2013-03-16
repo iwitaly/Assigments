@@ -13,7 +13,7 @@
 #include <string.h>
 #include <fcntl.h>
 
-#define TIME_TO_CHECK 100
+#define TIME_TO_CHECK 10
 
 pid_t pid;
 
@@ -92,7 +92,7 @@ int main(int argc, const char * argv[])
             prevTimeWork = 0;
         }
     }
-
+    
     return 0;
 }
 
