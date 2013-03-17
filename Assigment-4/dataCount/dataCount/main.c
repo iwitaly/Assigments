@@ -13,43 +13,58 @@
 #include <errno.h>
 #include <signal.h>
 
-int *adr;
+int ppe[2];
+pid_t pid;
+int time = 2;
 
 void handler(int npid) {
     
-    write(STDOUT_FILENO, "WOW!\n", 5);
+    kill(pid, SIGKILL); //kill child
     
-    int check[1000000];
-    read(adr[0], check, 10000);
+    int bufferSize = 1000;
+    char buff[bufferSize]; //kBt
     
+    long long size = 0;
     
-    char str[5];
-    sprintf(str, "%ld", sizeof(*check));
-    write(STDOUT_FILENO, str, strlen(str));
+    while (1) {
+        if (read(ppe[0], buff, bufferSize) != 0) {
+            size += 1;
+        }
+        else {
+            break;
+        }
+    }
+    
+    char str[30];
+    sprintf(str, "%lf Mb\n%lf Mb/sec", size/1000.0, size/(time*1000.0));
+    
+    write(STDOUT_FILENO, str, strlen(str));    
 }
 
 int main(int argc, const char * argv[])
 {
-    int *ppe = (int *)malloc(sizeof(100e6));
-    int ind = pipe(ppe);
-    adr = ppe;
+    pipe(ppe);
     
-    
-    pid_t pid = fork();
+    pid = fork();
     
     if (pid == -1) {
         write(STDOUT_FILENO, "shit happends", strlen("shit happends"));
     }
-    if (!fork()) {
+    if (pid == 0) {
         //child
+        close(ppe[0]);
+        
+        int sizeToWrite = 1000;
         while (1) {
-            int *trash = malloc(sizeof(int)*1e3);
-            write(ppe[1], trash, sizeof(int)*1e3);
+            char trash[sizeToWrite];//kBt
+            write(ppe[1], trash, sizeToWrite);
         }
     }
     else {
         //parent
-        alarm(2);
+        alarm(time);
+        
+        close(ppe[1]);
         
         struct sigaction action;
         action.sa_handler = handler;
