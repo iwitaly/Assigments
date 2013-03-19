@@ -15,20 +15,20 @@
 
 int ppe[2];
 pid_t pid;
-int time = 2;
+int time = 5;
 
 void handler(int npid) {
     
     kill(pid, SIGKILL); //kill child
     
-    int bufferSize = 1000;
+    int bufferSize = 1;
     char buff[bufferSize]; //kBt
     
-    long long size = 0;
+    double size = 0;
     
     while (1) {
         if (read(ppe[0], buff, bufferSize) != 0) {
-            size += 1;
+            size += 0.001;
         }
         else {
             break;
@@ -54,7 +54,7 @@ int main(int argc, const char * argv[])
         //child
         close(ppe[0]);
         
-        int sizeToWrite = 1000;
+        int sizeToWrite = 1;
         while (1) {
             char trash[sizeToWrite];//kBt
             write(ppe[1], trash, sizeToWrite);
