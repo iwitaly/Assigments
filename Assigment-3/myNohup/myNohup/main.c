@@ -14,7 +14,6 @@
 
 pid_t pid;
 
-
 char **makeArguments(const char **argv, int argc) {
     char **argv1 = (char **)malloc(argc*sizeof(char *));
     
