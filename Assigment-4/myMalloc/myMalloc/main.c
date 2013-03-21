@@ -57,7 +57,7 @@ void myFree(void *ap) {//put ap in free block
     freep = p;
 }
 
-static IWBlock *takeMemoryFromOS(unsigned nu) {
+static IWBlock *takeMemoryFromOS(int nu) {
     char *cp;
     char *sbrk(int);
     IWBlock *up;
@@ -77,11 +77,16 @@ static IWBlock *takeMemoryFromOS(unsigned nu) {
     return freep;
 }
 
-void *myMalloc(unsigned nbytes) {
+void *myMalloc(int nbytes) {
+    
+    if (nbytes <= 0) {
+        return NULL;
+    }
+    
     IWBlock *p;
     IWBlock *prevP;
-    IWBlock *takeMemoryFromOS(unsigned);
-    unsigned numberUnits;
+    IWBlock *takeMemoryFromOS(int);
+    int numberUnits;
     
     numberUnits = (nbytes + sizeof(IWBlock) - 1)/sizeof(IWBlock) + 1;
     if ((prevP = freep) == NULL) {//list not exists
@@ -89,7 +94,8 @@ void *myMalloc(unsigned nbytes) {
         base.s.size = 0;
     }
     
-    for (p = prevP->s.ptr; ; prevP = p, p = p->s.ptr) {
+    p = prevP->s.ptr;
+    while (1) {
         if (p->s.size >= numberUnits) { //enought size
             if (p->s.size == numberUnits) { //fit size
                 prevP->s.ptr = p->s.ptr;
@@ -103,16 +109,21 @@ void *myMalloc(unsigned nbytes) {
             return (void *)(p+1);
         }
         if (p == freep) {//link to the list
-            if ((p = takeMemoryFromOS(numberUnits)) == NULL) {
+            
+            p = takeMemoryFromOS(numberUnits);
+            
+            if (p == NULL) {
                 return NULL; //no memory
             }
         }
+        prevP = p;
+        p = p->s.ptr;
     }
 }
 
 int main(int argc, const char * argv[])
 {
+    int *a = (int *)myMalloc(15);
     
     return 0;
 }
-

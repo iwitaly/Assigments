@@ -1,6 +1,16 @@
 __author__ = 'iwitaly'
 from os import read, write
 
+def analizeForDollar(text, pattern):
+    text = text[len(text)-len(pattern):]
+    print pattern, text
+
+    if text == pattern:
+        return True
+    else:
+        return False
+
+
 def analizeForDots(text, pattern):
     while pattern[0] == '.':
         pattern = pattern[1:]
@@ -10,7 +20,13 @@ def analizeForDots(text, pattern):
             write(1, 'True')
             return
 
-    if pattern in text:
+    isLastPartOk = False
+
+    if pattern[-1] == '$':
+        pattern = pattern[:len(pattern)-1]
+        isLastPartOk = analizeForDollar(text, pattern)
+
+    if pattern in text and isLastPartOk == True:
         write(1, 'True')
     else:
         write(1, 'False')
@@ -52,7 +68,7 @@ def solve(text, pattern):
         analizeForDots(text, pattern)
 
 if __name__ == '__main__':
-    text = 'dbabcdsg'
-    pattern = '......'
+    text = 'dbabcabc'
+    pattern = 'abc$'
 
     solve(text, pattern)
