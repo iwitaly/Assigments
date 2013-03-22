@@ -11,6 +11,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+//сделать цикл, закрыть файл, сделать нормальное взаимодействие read\write сохранить число байт, прочтенное
+
 
 void generateTextFilesInAmount(int n) {
     int x[n];
@@ -47,14 +49,26 @@ int main(int argc, char * argv[])
        }
        else {
 	//copy in buffer
-			int sizeOfString = 10;
-			char *string = (char *)malloc(sizeOfString*sizeof(char));
-           read(fildes, string, sizeOfString);
-           write(1, string, strlen(string));
-           printf("\n");
-		free(string);
+           while (1) {
+               int sizeOfString = 1024;
+               char *string = (char *)malloc(sizeOfString*sizeof(char));
+               int len = 0;
+               
+               len = read(fildes, string, sizeOfString);
+               
+               if (len == 0) {
+                   break;
+               }
+               else {
+                   write(STDOUT_FILENO, string, len);
+                   write(STDOUT_FILENO, "\n", 1);
+                   
+                   free(string);
+               }
+           }
        }
        
+       close(fildes);
    }
     
     return 0;

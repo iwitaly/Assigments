@@ -53,6 +53,7 @@ void myLsFunction(int argc, const char * argv[]) {
         struct stat st;
         //пераметры, линки, владелец, группа, размер, время модификации
         //поправить имя файла с полным путем
+        //
         char *name = (char *)malloc((strlen(dp->d_name) + strlen(dirPath)+1)*sizeof(char));
         name[0] = '\0';
         name = strcat(name, dirPath);
@@ -71,9 +72,17 @@ void myLsFunction(int argc, const char * argv[]) {
             int hardLinks = st.st_nlink;
             char *user = getpwuid(st.st_uid)->pw_name;
             char *group = getgrgid(st.st_gid)->gr_name;
+            
+            if (user == NULL || group == NULL) {
+                write(STDOUT_FILENO, "error", strlen("error"));
+            }
+            
+            //проверку на NULL
             char *dataOfLastTimeModification = ctime(&st.st_atimespec.tv_sec);
             
             char filesModes[3];
+            filesModes[2] = '\0';
+            
             if (fileModes | S_IRWXU) {
                 filesModes[0] = 'r';
                 filesModes[1] = 'w';
@@ -91,7 +100,7 @@ void myLsFunction(int argc, const char * argv[]) {
             }
             
             printf("%s\t", filesModes);
-            printf("%d\t", hardLinks);
+            printf("%d\t", hardLinks);//почему так много?
             printf("%s\t", user);
             printf("%s\t", group);
             printf("%lld\t", size);
