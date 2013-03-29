@@ -15,30 +15,17 @@
 
 int ppe[2];
 pid_t pid;
-int time = 5;
+int time = 2;
+double size = 0;
 
 void handler(int npid) {
     
     kill(pid, SIGKILL); //kill child
     
-    int bufferSize = 1;
-    char buff[bufferSize]; //kBt
-    
-    double size = 0;
-    
-    while (1) {
-        if (read(ppe[0], buff, bufferSize) != 0) {
-            size += 0.001;
-        }
-        else {
-            break;
-        }
-    }
-    
-    char str[30];
-    sprintf(str, "%lf Mb\n%lf Mb/sec", size/1000.0, size/(time*1000.0));
-    
-    write(STDOUT_FILENO, str, strlen(str));    
+    char str[40];
+    sprintf(str, "%lf Mb\n%lf Mb/sec", size, size/(time));
+
+    write(STDOUT_FILENO, str, strlen(str));
 }
 
 int main(int argc, const char * argv[])
@@ -54,9 +41,10 @@ int main(int argc, const char * argv[])
         //child
         close(ppe[0]);
         
-        int sizeToWrite = 1;
+        int sizeToWrite = 100000;
+        char trash[sizeToWrite];//0.1 Mb
+        
         while (1) {
-            char trash[sizeToWrite];//kBt
             write(ppe[1], trash, sizeToWrite);
         }
     }
@@ -71,8 +59,17 @@ int main(int argc, const char * argv[])
         
         sigaction(SIGALRM, &action, NULL);
         
-        int status;
-        wait(&status);
+        int bufferSize = 100000;
+        char buff[bufferSize]; //0.1 Mb
+        
+        while (1) {
+            if (read(ppe[0], buff, bufferSize) != 0) {
+                size += 0.1;
+            }
+            else {
+                break;
+            }
+        }
     }
     
     return 0;

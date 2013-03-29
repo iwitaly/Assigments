@@ -48,5 +48,6 @@ int main(int argc, const char * argv[])
         
         sigaction(SIGHUP, &act, NULL);
     }
+    
     return 0;
 }
