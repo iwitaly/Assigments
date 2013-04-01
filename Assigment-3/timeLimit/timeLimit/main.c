@@ -45,7 +45,7 @@ int main(int argc, const char * argv[]) {
     int timeLimit = atoi(argv[1]);
     const char *program = argv[2];
     
-    if (timeLimit == 0) {
+    if (timeLimit <= 0) {
         printf("wrong input\n");
         return -1;
     }
@@ -62,6 +62,8 @@ int main(int argc, const char * argv[]) {
     if (pid == 0) {
         //child
         execve(program, makeArguments(argv, argc), NULL);
+        
+        write(STDOUT_FILENO, "oh, smth goes wrong!", strlen("oh, smth goes wrong!"));
     }
     else {
         //parent        

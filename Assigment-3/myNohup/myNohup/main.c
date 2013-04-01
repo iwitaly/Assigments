@@ -35,15 +35,17 @@ int main(int argc, const char * argv[])
     pid = fork();
 
     if (pid == -1) {
-        write(STDOUT_FILENO, "oh, wrong\n", 10);
+        write(STDOUT_FILENO, "oh, wrong\n", strlen("oh, wrong\n"));
         
         return -1;
     }
     if (pid == 0) {
         execve(argv[1], makeArguments(argv, argc), NULL);
+        
+        write(STDOUT_FILENO, "run error", strlen("run error"));
     }
     else {
-        static struct sigaction act;
+        struct sigaction act;
         act.sa_handler = SIG_IGN;
         
         sigaction(SIGHUP, &act, NULL);

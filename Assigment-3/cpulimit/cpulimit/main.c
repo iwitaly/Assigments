@@ -33,22 +33,19 @@ char **makeArguments(const char **argv, int argc) {
 
 int main(int argc, const char * argv[])
 {
-//    if (argc < 3) {
-//        printf("wrong input\n");
-//        
-//        return -1;
-//    }
+    if (argc < 3) {
+        write(STDOUT_FILENO, "wrong input\n", strlen("wrong input\n"));
+
+        return -1;
+    }
     
-    int cpuLimit = 5; //atoi(argv[1]);
-    const char *program = "/Users/iwitaly/Documents/Assigments/Assigment-3/cpulimit/cpulimit/test"; //argv[2];
+    int cpuLimit = atoi(argv[1]);
+    const char *program = argv[2];
     
-    if (cpuLimit == 0) {
+    if (cpuLimit <= 0) {
         printf("wrong input\n");
         
         return -1;
-    }
-    else {
-        cpuLimit /= 100.0;
     }
     
     pid = fork();
@@ -61,35 +58,23 @@ int main(int argc, const char * argv[])
     
     if (pid == 0) {
         //child
-        execve(program,  NULL/*makeArguments(argv, argc)*/, NULL);
+        execve(program,  makeArguments(argv, argc), NULL);
         
         write(STDOUT_FILENO, "shit happends\n", strlen("shit happends\n"));
     }
     else {
         //parent, delegate child
-        float prevTimeWork = 0;
-        float totalTimeWork = TIME_TO_CHECK;
-        
         while (1) {
-            if (kill(pid, 0) == -1) {
-                write(STDOUT_FILENO, "programm has finished\n", strlen("programm has finished\n"));
-                
-                break;
-            }
-            else {
-                float persent = 0;
-                
-                while (persent < cpuLimit) {
-                    prevTimeWork += TIME_TO_CHECK;
-                    totalTimeWork += TIME_TO_CHECK;
-                    persent = prevTimeWork/totalTimeWork;
-                }
-                kill(pid, SIGSTOP);
-                usleep(TIME_TO_CHECK);
-                kill(pid, SIGCONT);
-            }
+            usleep((100.0-cpuLimit)*100);
             
-            prevTimeWork = 0;
+            if (kill(pid, SIGSTOP) < 0) {
+                return -1;
+            }
+
+            usleep(cpuLimit*100);
+            if (kill(pid, SIGCONT) < 0) {
+                return -1;
+            }
         }
     }
     
