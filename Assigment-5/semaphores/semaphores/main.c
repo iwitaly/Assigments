@@ -68,7 +68,8 @@ int main(int argc, const char * argv[])
         
         number[byteReadedFromFile] = '\0';
         
-        write(STDOUT_FILENO, number, 4);
+        printf("%s\n", number);
+//        write(STDOUT_FILENO, number, 4);
         
         int numberReadFromFile = atoi(number);
         ++numberReadFromFile;
