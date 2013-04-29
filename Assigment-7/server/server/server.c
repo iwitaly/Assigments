@@ -13,25 +13,43 @@
 
 int main()
 {
-	int fd = socket(AF_INET, SOCK_STREAM, 0);
-	struct sockaddr_in sockerAddres;
+	int listenFd = socket(AF_INET, SOCK_STREAM, 0);
+	if (listenFd < 0) {
+		printf("socker error\n");
+		
+		return -1;
+	}
 	
-	memset(&sockerAddres, 0, sizeof(struct sockaddr_in));
+	struct sockaddr_in socketAddres;
+	
+	memset(&socketAddres, 0, sizeof(struct sockaddr_in));
 	
 	struct in_addr adrInInt;
 	adrInInt.s_addr = INADDR_ANY;
 	
-	sockerAddres.sin_family = AF_INET;
-	sockerAddres.sin_port = htons(port);
-	sockerAddres.sin_addr = adrInInt;
+	socketAddres.sin_family = AF_INET;
+	socketAddres.sin_port = port;
+//	inet_aton(addr, &socketAddres.sin_addr);
+	socketAddres.sin_addr = adrInInt;
 	
-	bind(fd, (struct sockaddr *)&sockerAddres, sizeof(struct sockaddr_in));
-	
-	listen(fd, numberOfConnections);
+	int bindCheck = bind(listenFd, (struct sockaddr *)&socketAddres, sizeof(struct sockaddr_in));
+	if (bindCheck < 0) {
+		printf("bind error\n");
 		
+		return -1;
+	}
+	
+	int listenCheck = listen(listenFd, numberOfConnections);
+	if (listenCheck < 0) {
+		printf("listen error\n");
+		
+		return -1;
+	}
+	
+	printf("all ok\n");
+	
 	while (1) {
-		int sockFd = accept(fd, NULL, 0);		
-		
+		int sockFd = accept(listenFd, NULL, 0);			
 		if (sockFd != -1) {
 			printf("connected!");
 
@@ -44,6 +62,8 @@ int main()
 			
 			close(sockFd);
 		}
+		
+		sleep(1);
 	}
 	
 	return 0;

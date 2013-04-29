@@ -1,6 +1,6 @@
 //
 //  main.c
-//  server
+//  client
 //
 //  Created by Виталий Давыдов on 21.04.13.
 //  Copyright (c) 2013 Виталий Давыдов. All rights reserved.
@@ -22,33 +22,33 @@
 int main(int argc, const char * argv[])
 {
     int fd = socket(AF_INET, SOCK_STREAM, 0);
-    
-    struct sockaddr_in sockerAddres;
-    
-    inet_aton(addr, &sockerAddres.sin_addr);
-    
-    sockerAddres.sin_family = AF_INET;
-    sockerAddres.sin_port = htons(port);
-//    sockerAddres.sin_addr.s_addr = inet_addr(addr);
-    
-    connect(fd, (struct sockaddr *)&sockerAddres, sizeof(struct sockaddr_in));
-    
-    if (fd == -1) {
-        printf("shit\n");
+    if (fd < 0) {
+        printf("socker error\n");
+        
+        return -1;
     }
     
+    struct sockaddr_in socketAddres;
+    socketAddres.sin_family = AF_INET;
+    inet_aton(addr, &socketAddres.sin_addr);
+    socketAddres.sin_port = port;
     
-//    char buff[10];//correct
+    int connectionResult = connect(fd, (struct sockaddr *)&socketAddres, sizeof(struct sockaddr_in));
+    if (connectionResult < 0) {
+        printf("connection error\n");
+        
+        return -1;
+    }
     
-    write(fd, message, strlen(message));
+    printf("ok connected!\n");
     
-//    sleep(0.5);
+    size_t writtenSize = write(fd, message, strlen(message));
     
-//    read(fd, buff, 10);
+    if (writtenSize == strlen(message)) {
+        printf("ok\n");
+    }
     
     close(fd);
-    
-//    printf("ke");
     
     return 0;
 }
