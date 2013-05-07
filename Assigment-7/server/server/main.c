@@ -15,7 +15,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 
-#define addr "127.0.0.1"
+#define addr "192.168.200.9"
 #define port 5000
 #define message "Hello, word!"
 
